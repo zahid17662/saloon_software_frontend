@@ -1,1 +1,0 @@
-ALTER TABLE "barbers" ADD COLUMN "password_hash" text;
