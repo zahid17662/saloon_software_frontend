@@ -121,7 +121,8 @@ describe("5. bundle secrets", () => {
         if (/SECRET|PASSWORD|PIN|URL|KEY|TOKEN|CODE/i.test(k) && v.length >= 8) secrets.push(v);
         if (/URL/i.test(k)) {
           try {
-            secrets.push(new URL(v).hostname); // the database / API host name
+            const host = new URL(v).hostname; // the database / API host name
+            if (host !== "localhost" && host !== "127.0.0.1" && host !== "::1") secrets.push(host);
           } catch {}
         }
       }

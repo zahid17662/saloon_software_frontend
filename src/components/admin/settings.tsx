@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCatalog } from "../catalog-context";
 import { Button, Card, ErrorText, Field, LoadingScreen, PageTitle, Select } from "../ui";
-import { changeAdminPin, changeShopCode } from "@/app/actions/auth";
+import { changeAdminPin } from "@/app/actions/auth";
 import { updateSettings } from "@/app/actions/catalog";
 import { NET_ERR } from "@server/lib/messages";
 import { bnDigits } from "@server/lib/money";
@@ -28,7 +28,6 @@ export function SettingsPage() {
         <ShopInfo settings={catalog.settings} />
         <div className="space-y-4">
           <PinForm />
-          <ShopCodeForm />
           <DataTools />
         </div>
       </div>
@@ -129,39 +128,6 @@ function PinForm() {
         <Saved show={saved} />
         <Button type="submit" variant="secondary">
           পিন বদলান
-        </Button>
-      </form>
-    </Card>
-  );
-}
-
-function ShopCodeForm() {
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
-  const [saved, setSaved] = useState(false);
-
-  return (
-    <Card>
-      <h2 className="mb-1 text-lg font-semibold text-fg">দোকানের কোড পরিবর্তন</h2>
-      <p className="mb-4 text-sm text-muted">কোড বদলালে দোকানের সব ফোন/কম্পিউটারে আবার নতুন কোড দিতে হবে।</p>
-      <form
-        className="space-y-4"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setSaved(false);
-          if (!window.confirm("সব ডিভাইস থেকে লগআউট হবে। কোড বদলাবেন?")) return;
-          const r = await changeShopCode({ next: code });
-          if (!r.ok) return setError(r.error);
-          setError("");
-          setSaved(true);
-          setCode("");
-        }}
-      >
-        <Field label="নতুন কোড (৪–৮ সংখ্যা)" type="password" inputMode="numeric" value={code} onChange={(e) => setCode(e.target.value)} required />
-        <ErrorText>{error}</ErrorText>
-        <Saved show={saved} />
-        <Button type="submit" variant="secondary">
-          কোড বদলান
         </Button>
       </form>
     </Card>

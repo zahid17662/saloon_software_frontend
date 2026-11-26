@@ -10,7 +10,6 @@ export default async function BarberLoginPage({ params }: PageProps<"/barber-log
   const { id } = await params;
   const barberId = Number(id);
   if (!Number.isSafeInteger(barberId) || barberId <= 0) notFound();
-  // The device itself must already be unlocked; the API sends it to /unlock otherwise.
   const r = await readApi<ReadResult<{ id: number; name: string }>>("read.barberLogin", [barberId]);
   if (r.status === "redirect") redirect(r.to);
   if (r.status !== "ok") notFound();

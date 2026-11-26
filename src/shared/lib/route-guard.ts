@@ -6,16 +6,15 @@
 export interface GuardInput {
   pathname: string;
   search: string; // includes the leading "?" or is ""
-  hasShop: boolean; // valid shop cookie (signature + expiry)
   hasAdmin: boolean; // valid admin cookie (signature + expiry)
 }
 
 const isAdminPath = (p: string) => p === "/admin" || p.startsWith("/admin/");
 
-export function guardRoute({ pathname, search, hasShop, hasAdmin }: GuardInput): { redirect: string } | null {
+export function guardRoute({ pathname, search, hasAdmin }: GuardInput): { redirect: string } | null {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
 
-  if (path === "/unlock") return null;
+  if (path === "/unlock") return { redirect: "/" };
 
   if (isAdminPath(path)) {
     if (path === "/admin/login") return null;
@@ -23,8 +22,6 @@ export function guardRoute({ pathname, search, hasShop, hasAdmin }: GuardInput):
     return { redirect: `/admin/login?next=${encodeURIComponent(path + search)}` };
   }
 
-  // Barber screens: an unlocked shop device, or an admin session (admin login also unlocks).
-  if (!hasShop && !hasAdmin) return { redirect: "/unlock" };
   return null;
 }
 

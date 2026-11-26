@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { cookieName, verifyAdminCookie, verifyShopCookie } from "@server/lib/auth-core";
+import { cookieName, verifyAdminCookie } from "@server/lib/auth-core";
 import { guardRoute } from "@server/lib/route-guard";
 
 // Convenience redirects only (PRD FR-4). It checks the cookie signature and expiry, with no DB call.
-// The authoritative check, including the shop code version, runs in every Server Action.
+// The authoritative check runs in every Server Action.
 export function proxy(request: NextRequest) {
   const secret = process.env.SESSION_SECRET ?? ""; // auth-core throws if missing/short: fail closed
   const secure = process.env.NODE_ENV === "production";
@@ -11,7 +11,6 @@ export function proxy(request: NextRequest) {
   const decision = guardRoute({
     pathname: request.nextUrl.pathname,
     search: request.nextUrl.search,
-    hasShop: verifyShopCookie(request.cookies.get(cookieName("shop", secure))?.value, secret) !== null,
     hasAdmin: verifyAdminCookie(request.cookies.get(cookieName("admin", secure))?.value, secret) !== null,
   });
 

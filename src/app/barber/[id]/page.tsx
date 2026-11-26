@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { BarberScreen } from "@/components/barber-screen";
-import { BarberGate, ShopGate } from "@/components/gates";
+import { BarberGate } from "@/components/gates";
 import { readApi } from "@/lib/api";
 import type { ReadResult, Sale } from "@/lib/api-types";
 
@@ -15,10 +15,8 @@ export default async function BarberPage({ params }: PageProps<"/barber/[id]">) 
   if (r.status === "redirect") redirect(r.to);
   if (r.status !== "ok") notFound();
   return (
-    <ShopGate>
-      <BarberGate barberId={barberId}>
-        <BarberScreen barberId={barberId} todaySales={r.data} />
-      </BarberGate>
-    </ShopGate>
+    <BarberGate barberId={barberId}>
+      <BarberScreen barberId={barberId} todaySales={r.data} />
+    </BarberGate>
   );
 }
