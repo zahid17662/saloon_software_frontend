@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCatalog } from "@/components/catalog-context";
-import { ChartIcon, ScissorsIcon } from "@/components/icons";
+import { ScissorsIcon } from "@/components/icons";
 import { LoadingScreen } from "@/components/ui";
 import { bnDigits, nameInitial, taka } from "@server/lib/money";
 
@@ -20,7 +20,7 @@ export function BarberPicker({ stats }: { stats: TodayStat[] }) {
 
   return (
     <main className="mx-auto min-h-dvh max-w-4xl p-4 sm:p-6">
-      <header className="mb-6 flex items-center justify-between gap-3">
+      <header className="mb-6 flex items-center gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
             <ScissorsIcon className="h-6 w-6" />
@@ -30,13 +30,6 @@ export function BarberPicker({ stats }: { stats: TodayStat[] }) {
             <p className="text-sm text-muted">আপনার নাম বেছে নিন</p>
           </div>
         </div>
-        <Link
-          href="/admin"
-          className="inline-flex h-10 items-center gap-2 rounded-xl border border-line px-3 text-sm text-muted hover:bg-surface-2 hover:text-fg"
-        >
-          <ChartIcon className="h-4 w-4" />
-          এডমিন
-        </Link>
       </header>
 
       {barbers.length === 0 ? (
