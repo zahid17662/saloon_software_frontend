@@ -41,7 +41,9 @@ describe("1. the web app holds no backend secrets or database code", () => {
   it("every page that shows barber, sale or catalog data reads it through the API (which checks the session)", () => {
     const pages = walk(path.join(srcDir, "app"), (f) => f === "page.tsx");
     // "(site)/*" is the public website, multi-page but still static (checked below); /unlock only redirects.
-    const open = new Set(["(pos)/unlock/page.tsx", "(pos)/admin/login/page.tsx"]);
+    // appointments is a data-free shell like the admin pages: it loads through a session-checked
+    // Server Action (requireShop), not readApi.
+    const open = new Set(["(pos)/unlock/page.tsx", "(pos)/admin/login/page.tsx", "(pos)/appointments/page.tsx"]);
     const offenders: string[] = [];
     for (const p of pages) {
       const rel = path.relative(path.join(srcDir, "app"), p).replaceAll("\\", "/");

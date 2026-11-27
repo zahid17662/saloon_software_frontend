@@ -13,7 +13,7 @@ export interface GuardInput {
 const isUnder = (p: string, base: string) => p === base || p.startsWith(`${base}/`);
 const isAdminPath = (p: string) => isUnder(p, "/admin");
 // Staff screens that need an unlocked shop device. Everything else (the public website) is open.
-const SHOP_PATHS = ["/pos", "/barber", "/barber-login", "/receipt"];
+const SHOP_PATHS = ["/pos", "/barber", "/barber-login", "/receipt", "/appointments"];
 
 export function guardRoute({ pathname, search, hasShop, hasAdmin }: GuardInput): { redirect: string } | null {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;

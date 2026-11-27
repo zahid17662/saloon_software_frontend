@@ -76,7 +76,10 @@ export function Appointments() {
           <tbody className="divide-y divide-line">
             {list.map((a: Appointment) => (
               <tr key={a.id}>
-                <td className={`${td} whitespace-nowrap`}>{fmtDateTime(a.requestedAt)}</td>
+                <td className={`${td} whitespace-nowrap`}>
+                  {fmtDateTime(a.requestedAt)}
+                  {a.preferredTimeText && <div className="text-xs text-muted">কাস্টমার লিখেছে: {a.preferredTimeText}</div>}
+                </td>
                 <td className={td}>
                   <div className="font-medium text-fg">{a.customerName}</div>
                   <div className="text-xs text-muted">{a.customerPhone}</div>

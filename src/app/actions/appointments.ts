@@ -1,7 +1,8 @@
 "use server";
 
 // Appointment Server Actions: thin forwards to the backend API. createAppointment is public (the
-// website's booking form, no session); list/updateStatus are admin only.
+// website's booking form, no session); list is readable by any unlocked shop device (barber or
+// admin); updateStatus is admin only.
 
 import { revalidatePath } from "next/cache";
 import { callAction, failure, readApi } from "@/lib/api";

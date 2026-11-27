@@ -1,8 +1,8 @@
 "use client";
 
-// Loading helpers for admin screens that read live Neon data through admin-only Server Actions.
-// Both ignore a slow reply that was overtaken by a newer request, and expose `reload()` for use
-// after a change.
+// Loading helpers for screens that read live Neon data through Server Actions (most admin-only;
+// `useAppointments` is also used by the barber-facing read-only view). Both ignore a slow reply
+// that was overtaken by a newer request, and expose `reload()` for use after a change.
 
 import { useCallback, useEffect, useState } from "react";
 import { listAppointments } from "@/app/actions/appointments";
@@ -76,7 +76,7 @@ export function usePayoutsView(): Loaded<PayoutsView> {
   return useLoaded("payouts", () => getPayoutsView());
 }
 
-/** Online booking requests from the public site, soonest first. */
+/** Online booking requests from the public site, soonest first. Readable by any unlocked shop device. */
 export function useAppointments(): Loaded<Appointment[]> {
   return useLoaded("appointments", () => listAppointments());
 }

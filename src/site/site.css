@@ -217,6 +217,7 @@ html:has(.nir-site) { scroll-behavior: smooth; }
   & .bk-summary { display: flex; justify-content: space-between; align-items: center; background: var(--soft); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; font-weight: 700; }
   & .bk-field { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 14px; }
   & .bk-hint { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  & .bk-time-preview { margin: -8px 0 14px; font-size: 12.5px; }
   & .bk-input { display: block; width: 100%; margin-top: 7px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--ink); background: #fff; }
   & .bk-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   & .bk-error { color: #b03a2e; font-size: 13px; font-weight: 600; margin-top: -4px; margin-bottom: 14px; }

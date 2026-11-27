@@ -76,6 +76,7 @@ export interface Appointment {
   barberId: number | null;
   barberName: string | null; // snapshot; null = the customer had no preference
   requestedAt: string; // ISO (UTC)
+  preferredTimeText: string | null; // what the customer actually typed for a time, verbatim
   note: string;
   status: AppointmentStatus;
   createdAt: string; // ISO (UTC)

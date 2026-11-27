@@ -10,6 +10,7 @@ import { createAppointment, listActiveBarbers } from "@/app/actions/appointments
 import { CATEGORIES, SERVICES, taka, type CategoryId } from "./services";
 import { ServiceArt } from "./illustrations";
 import { CATEGORY_ICON, SiteIcon } from "./icons";
+import { formatHHMM, parseTimeInput } from "./time-input";
 
 /** Today's date in Asia/Dhaka (UTC+6, no DST), as "YYYY-MM-DD" — just the date picker's `min`. */
 function dhakaTodayKey(): string {
@@ -41,7 +42,7 @@ export function BookingFlow({ initial }: { initial: BookingService | null }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [timeText, setTimeText] = useState("");
   const [barberId, setBarberId] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
@@ -62,7 +63,9 @@ export function BookingFlow({ initial }: { initial: BookingService | null }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy || !chosen) return;
-    if (!date || !time) return setError("Please choose a date and time");
+    if (!date) return setError("Please choose a date");
+    const time = parseTimeInput(timeText);
+    if (!time) return setError("Please enter a time, e.g. 2:00 PM, 2pm, or 12–1 PM");
     setBusy(true);
     setError("");
     try {
@@ -73,6 +76,7 @@ export function BookingFlow({ initial }: { initial: BookingService | null }) {
         customerPhone: phone,
         date,
         time,
+        preferredTimeText: timeText.trim() || null,
         note,
         idempotencyKey: keyRef.current,
       });
@@ -172,9 +176,23 @@ export function BookingFlow({ initial }: { initial: BookingService | null }) {
                   </label>
                   <label className="bk-field">
                     Time
-                    <input className="bk-input" type="time" step={1800} value={time} onChange={(e) => setTime(e.target.value)} required />
+                    <input
+                      className="bk-input"
+                      type="text"
+                      value={timeText}
+                      onChange={(e) => setTimeText(e.target.value)}
+                      placeholder="e.g. 2 PM, 2:30, or 12–1 PM"
+                      required
+                    />
                   </label>
                 </div>
+                {timeText.trim() && (
+                  <p className="bk-hint bk-time-preview">
+                    {parseTimeInput(timeText)
+                      ? `We'll request around ${formatHHMM(parseTimeInput(timeText)!)}.`
+                      : "We couldn't quite read that time — try e.g. \"2 PM\" or \"12-1 PM\"."}
+                  </p>
+                )}
                 <label className="bk-field">
                   Preferred Barber <span className="bk-hint">(optional)</span>
                   <select className="bk-input" value={barberId} onChange={(e) => setBarberId(e.target.value)}>
@@ -207,7 +225,7 @@ export function BookingFlow({ initial }: { initial: BookingService | null }) {
               <div className="ic">✓</div>
               <h3>Thanks, {name}!</h3>
               <p>
-                We&apos;ve received your request for <b>{chosen.name}</b> on <b>{date}</b> at <b>{time}</b>
+                We&apos;ve received your request for <b>{chosen.name}</b> on <b>{date}</b> at <b>{timeText}</b>
                 {barberId && barbers.find((b) => String(b.id) === barberId) ? <> with <b>{barbers.find((b) => String(b.id) === barberId)!.name}</b></> : null}.
               </p>
               <p className="bk-hint">We&apos;ll call you at {phone} shortly to confirm.</p>

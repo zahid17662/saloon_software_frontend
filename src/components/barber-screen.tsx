@@ -7,7 +7,7 @@ import { barberLogout, checkBarberSession, checkShopSession } from "@/app/action
 import { createSale, voidMySale } from "@/app/actions/sales";
 import { useCatalog } from "@/components/catalog-context";
 import { Badge, Button, cx, ErrorText, Field, LoadingScreen, Modal } from "@/components/ui";
-import { BackIcon, LogoutIcon, MinusIcon, PlusIcon, ReceiptIcon } from "@/components/icons";
+import { BackIcon, CalendarIcon, LogoutIcon, MinusIcon, PlusIcon, ReceiptIcon } from "@/components/icons";
 import { NET_ERR } from "@server/lib/messages";
 import { bnDigits, receiptNo, splitAmount, taka } from "@server/lib/money";
 import { canBarberVoid } from "@server/lib/sale-rules";
@@ -140,6 +140,13 @@ export function BarberScreen({ barberId, todaySales }: { barberId: number; today
               আজ {bnDigits(liveToday.length)} জন কাস্টমার · আপনার আয় <span className="text-primary">{taka(earnedToday)}</span>
             </p>
           </div>
+          <Link
+            href={`/appointments?barberId=${barber.id}`}
+            aria-label="অ্যাপয়েন্টমেন্ট"
+            className="rounded-xl p-2.5 text-muted hover:bg-surface-2 hover:text-fg"
+          >
+            <CalendarIcon className="h-6 w-6" />
+          </Link>
           <button
             type="button"
             aria-label="লগআউট"
