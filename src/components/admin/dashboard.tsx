@@ -29,7 +29,16 @@ export function Dashboard() {
     [previousRange(r.range).from, shiftDays(today, -13)].sort()[0],
     [r.range.to, today].sort()[1],
   );
-  if (!catalog || !loaded.data) return loaded.error ? <ErrorText>{loaded.error}</ErrorText> : <LoadingScreen />;
+  if (!catalog || !loaded.data) {
+    if (!loaded.error) return <LoadingScreen />;
+    // Keep the date filter on screen, so a wrong range can be corrected.
+    return (
+      <div className="space-y-4">
+        <RangeFilter state={r} />
+        <ErrorText>{loaded.error}</ErrorText>
+      </div>
+    );
+  }
   const all = loaded.data;
   const barbers = catalog.barbers;
   const sales = liveSales(all, r.range);
@@ -90,7 +99,7 @@ export function Dashboard() {
         />
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-12">
+      <div className="mt-4 grid grid-cols-1 gap-4 *:min-w-0 xl:grid-cols-12">
         <Card className="xl:col-span-8">
           <CardHeader
             title="নাপিত অনুযায়ী হিসাব"

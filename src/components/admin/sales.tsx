@@ -54,6 +54,7 @@ export function SalesList() {
       })
       .catch(() => {
         if (!current) return;
+        setRowsKey(queryKey);
         setRows([]);
         setLoadError(NET_ERR);
       });
@@ -102,7 +103,7 @@ export function SalesList() {
       <ErrorText>{loadError}</ErrorText>
 
       {rows.length === 0 ? (
-        <Empty>কোনো এন্ট্রি পাওয়া যায়নি</Empty>
+        <>{!loadError && <Empty>কোনো এন্ট্রি পাওয়া যায়নি</Empty>}</>
       ) : (
         <>
           <div aria-busy={stale} className={stale ? "opacity-50 transition-opacity" : undefined}>

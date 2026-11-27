@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loginAdmin } from "@/app/actions/auth";
+import { NET_ERR } from "@server/lib/messages";
 import { safeNext } from "@server/lib/route-guard";
 import { Button, ErrorText } from "../ui";
 import { LockIcon } from "../icons";
@@ -17,13 +18,17 @@ export function AdminLogin({ shopName }: { shopName: string }) {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      const r = await loginAdmin({ pin });
-      if (!r.ok) {
-        setError(r.error);
-        setPin("");
-        return;
+      try {
+        const r = await loginAdmin({ pin });
+        if (!r.ok) {
+          setError(r.error);
+          setPin("");
+          return;
+        }
+        router.replace(safeNext(new URLSearchParams(window.location.search).get("next")));
+      } catch {
+        setError(NET_ERR); // keep what was typed
       }
-      router.replace(safeNext(new URLSearchParams(window.location.search).get("next")));
     });
   }
 
@@ -54,7 +59,7 @@ export function AdminLogin({ shopName }: { shopName: string }) {
         <Button type="submit" size="lg" className="mt-4 w-full" disabled={!pin || pending}>
           লগইন
         </Button>
-        <Link href="/" className="mt-2 inline-block text-sm text-primary hover:underline">
+        <Link href="/pos" className="mt-2 inline-block text-sm text-primary hover:underline">
           নাপিতের স্ক্রিনে যান
         </Link>
       </form>

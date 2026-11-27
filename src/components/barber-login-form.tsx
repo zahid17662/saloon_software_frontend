@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { barberLogin } from "@/app/actions/auth";
 import { Button, ErrorText } from "@/components/ui";
+import { NET_ERR } from "@server/lib/messages";
 import { nameInitial } from "@server/lib/money";
 
 // Same shared login UI for every barber - only barberId/barberName differ per page.
@@ -17,11 +18,15 @@ export function BarberLoginForm({ barberId, barberName }: { barberId: number; ba
   function submit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      const r = await barberLogin({ barberId, password });
-      if (r.ok) router.replace(`/barber/${barberId}`);
-      else {
-        setError(r.error);
-        setPassword("");
+      try {
+        const r = await barberLogin({ barberId, password });
+        if (r.ok) router.replace(`/barber/${barberId}`);
+        else {
+          setError(r.error);
+          setPassword("");
+        }
+      } catch {
+        setError(NET_ERR); // keep what was typed
       }
     });
   }
@@ -53,7 +58,7 @@ export function BarberLoginForm({ barberId, barberName }: { barberId: number; ba
         <Button type="submit" size="lg" className="mt-4 w-full" disabled={!password || pending}>
           লগইন
         </Button>
-        <Link href="/" className="mt-2 inline-block text-sm text-primary hover:underline">
+        <Link href="/pos" className="mt-2 inline-block text-sm text-primary hover:underline">
           নাপিত তালিকা
         </Link>
       </form>

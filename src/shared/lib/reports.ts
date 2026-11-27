@@ -1,5 +1,5 @@
-// GENERATED COPY of the backend's src/lib/reports.ts. Do not edit here: change it in the backend
-// repo and run `npm run sync:shared` in the dev meta-repo.
+// GENERATED COPY of Server/src/lib/reports.ts. Do not edit here: change it there
+// and run `npm run sync:shared` at the repo root.
 import type { Barber, Payout, Sale } from "./types";
 import { dhakaDateKey, dhakaMonthKey, inRange, type DateRange } from "./time";
 
@@ -114,8 +114,13 @@ export function barberBalance(barberId: number, sales: Sale[], payouts: Payout[]
 /** UTF-8 CSV with BOM so Excel renders Bangla (FR-16). */
 export function toCsv(headers: string[], rows: (string | number)[][]): string {
   const esc = (v: string | number) => {
-    const s = String(v);
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    // A text cell starting with = + - @ would run as a formula in Excel: show it as text instead.
+    let s = String(v);
+    if (typeof v === "string") {
+      s = s.replace(/^[\t\r\n]+/, "");
+      if (/^[=+\-@]/.test(s)) s = `'${s}`;
+    }
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   return "﻿" + [headers, ...rows].map((r) => r.map(esc).join(",")).join("\r\n");
 }

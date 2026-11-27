@@ -27,7 +27,7 @@ export function ReceiptView({ sale }: { sale: Sale | null }) {
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
         <p className="text-muted">রসিদ পাওয়া যায়নি।</p>
-        <Link href="/" className="text-primary underline">
+        <Link href="/pos" className="text-primary underline">
           হোমে যান
         </Link>
       </main>

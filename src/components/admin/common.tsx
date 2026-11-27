@@ -16,7 +16,7 @@ export const tdNum = "px-3 py-2.5 text-right text-sm tabular-nums text-fg";
 /** `flat` drops the card chrome when the table already sits inside a Card. */
 export function TableWrap({ children, flat }: { children: React.ReactNode; flat?: boolean }) {
   return (
-    <div className={flat ? "-mx-1 overflow-x-auto" : "overflow-x-auto rounded-3xl bg-surface p-2 shadow-card"}>
+    <div className={flat ? "relative -mx-1 overflow-x-auto" : "relative overflow-x-auto rounded-3xl bg-surface p-2 shadow-card"}>
       <table className="w-full min-w-[560px] border-collapse">{children}</table>
     </div>
   );

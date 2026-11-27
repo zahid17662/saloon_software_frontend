@@ -1,5 +1,5 @@
-// GENERATED COPY of the backend's src/lib/time.ts. Do not edit here: change it in the backend
-// repo and run `npm run sync:shared` in the dev meta-repo.
+// GENERATED COPY of Server/src/lib/time.ts. Do not edit here: change it there
+// and run `npm run sync:shared` at the repo root.
 // BR-5: every day/month boundary is Asia/Dhaka (UTC+6, no DST).
 const DHAKA_OFFSET_MS = 6 * 60 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -52,6 +52,11 @@ export function dhakaDayStart(dateKey: string): Date {
 /** Convert a Dhaka "YYYY-MM-DD" (local midday) to an ISO instant. */
 export function dhakaDateToIso(dateKey: string): string {
   return new Date(Date.parse(`${dateKey}T12:00:00Z`) - DHAKA_OFFSET_MS).toISOString();
+}
+
+/** Convert a Dhaka "YYYY-MM-DD" + "HH:MM" wall-clock moment to the UTC instant it represents. */
+export function dhakaDateTimeToIso(dateKey: string, timeKey: string): string {
+  return new Date(Date.parse(`${dateKey}T${timeKey}:00Z`) - DHAKA_OFFSET_MS).toISOString();
 }
 
 const dateTimeFmt = new Intl.DateTimeFormat("bn-BD", {

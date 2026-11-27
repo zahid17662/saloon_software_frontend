@@ -5,10 +5,11 @@
 // after a change.
 
 import { useCallback, useEffect, useState } from "react";
+import { listAppointments } from "@/app/actions/appointments";
 import { getPayoutsView, type PayoutsView } from "@/app/actions/payouts";
 import { listSales } from "@/app/actions/sales";
 import { NET_ERR } from "@server/lib/messages";
-import type { Sale } from "@server/lib/types";
+import type { Appointment, Sale } from "@server/lib/types";
 
 export interface Loaded<T> {
   /** Data for exactly the query asked for; null while a different query is still loading. */
@@ -73,4 +74,9 @@ export function useSalesWindow(from: string, to: string): Loaded<Sale[]> {
 /** Payout history plus per-barber earned / paid / balance. */
 export function usePayoutsView(): Loaded<PayoutsView> {
   return useLoaded("payouts", () => getPayoutsView());
+}
+
+/** Online booking requests from the public site, soonest first. */
+export function useAppointments(): Loaded<Appointment[]> {
+  return useLoaded("appointments", () => listAppointments());
 }

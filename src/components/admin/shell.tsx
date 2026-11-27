@@ -8,6 +8,7 @@ import { NET_ERR } from "@server/lib/messages";
 import { useCatalog } from "../catalog-context";
 import { cx, LoadingScreen } from "../ui";
 import {
+  CalendarIcon,
   ChartIcon,
   GearIcon,
   HomeIcon,
@@ -23,6 +24,7 @@ const NAV = [
   { href: "/admin", label: "ড্যাশবোর্ড", Icon: ChartIcon },
   { href: "/admin/reports", label: "রিপোর্ট", Icon: ListIcon },
   { href: "/admin/sales", label: "বিক্রি", Icon: ReceiptIcon },
+  { href: "/admin/appointments", label: "অ্যাপয়েন্টমেন্ট", Icon: CalendarIcon },
   { href: "/admin/payouts", label: "নাপিতের পেমেন্ট", Icon: WalletIcon },
   { href: "/admin/barbers", label: "নাপিত", Icon: UsersIcon },
   { href: "/admin/services", label: "সার্ভিস ও দাম", Icon: ScissorsIcon },
@@ -105,7 +107,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="space-y-1 border-t border-line pt-3">
           <Link
-            href="/"
+            href="/pos"
             className="flex items-center gap-3 rounded-full py-1.5 pr-3 pl-1.5 text-sm text-muted hover:bg-surface-2 hover:text-fg"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-2">
@@ -130,7 +132,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between px-4 pt-3">
           <div className="font-semibold text-fg">{shopName}</div>
           <div className="flex gap-1">
-            <Link href="/" aria-label="নাপিতের স্ক্রিন" className="rounded-lg p-2 text-muted hover:bg-surface-2">
+            <Link href="/pos" aria-label="নাপিতের স্ক্রিন" className="rounded-lg p-2 text-muted hover:bg-surface-2">
               <HomeIcon className="h-5 w-5" />
             </Link>
             <button

@@ -2,7 +2,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 
-const ROOT = path.dirname(fileURLToPath(import.meta.url));
+// npm workspaces hoist `next` and the other dependencies to the repo root's node_modules,
+// so Turbopack's root must be the monorepo root (one level above Client/).
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -31,13 +33,15 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // The app needs none of these. Printing uses window.print(), which is not a gated feature.
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
 ];
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  // Two root layouts (website and staff screens), so unknown addresses need one shared 404 page.
+  experimental: { globalNotFound: true },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

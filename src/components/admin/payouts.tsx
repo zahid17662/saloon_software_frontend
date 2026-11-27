@@ -41,6 +41,7 @@ export function Payouts() {
   return (
     <>
       <PageTitle title="নাপিতের পেমেন্ট" sub={`মোট পাওনা ${taka(totalOwed)}`} />
+      {view.error && <ErrorText>{view.error}</ErrorText>}
       <p role="status" className="sr-only">
         {view.loading ? "হিসাব হালনাগাদ হচ্ছে…" : ""}
       </p>

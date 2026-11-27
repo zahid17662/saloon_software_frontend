@@ -1,5 +1,5 @@
-// GENERATED COPY of the backend's src/lib/money.ts. Do not edit here: change it in the backend
-// repo and run `npm run sync:shared` in the dev meta-repo.
+// GENERATED COPY of Server/src/lib/money.ts. Do not edit here: change it there
+// and run `npm run sync:shared` at the repo root.
 /** BR-1: barber share is rounded half-up; owner gets the exact remainder. */
 export function splitAmount(total: number, commissionPct: number) {
   const barberShare = Math.round((total * commissionPct) / 100);

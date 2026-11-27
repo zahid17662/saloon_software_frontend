@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { unlockShop } from "@/app/actions/auth";
 import { Button, ErrorText } from "@/components/ui";
 import { ScissorsIcon } from "@/components/icons";
+import { NET_ERR } from "@server/lib/messages";
 
 export function UnlockForm({ shopName }: { shopName: string }) {
   const router = useRouter();
@@ -16,11 +17,15 @@ export function UnlockForm({ shopName }: { shopName: string }) {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      const r = await unlockShop({ code });
-      if (r.ok) router.replace("/");
-      else {
-        setError(r.error);
-        setCode("");
+      try {
+        const r = await unlockShop({ code });
+        if (r.ok) router.replace("/pos");
+        else {
+          setError(r.error);
+          setCode("");
+        }
+      } catch {
+        setError(NET_ERR); // keep what was typed
       }
     });
   }

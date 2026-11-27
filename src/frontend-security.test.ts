@@ -1,5 +1,5 @@
-// Frontend-side security checks (they used to live in the monorepo's backend suite). The attacker-style
-// tests for auth, replay and rate limits now run against the API in the backend repo.
+// Frontend-side security checks (the web half of the security suite). The attacker-style
+// tests for auth, replay and rate limits run against the API in the Server workspace.
 //   1. the web app has no database or password-hashing code at all
 //   2. the customer receipt never shows the barber/owner split (FR-14)
 //   3. no HTML-injection sinks
@@ -20,6 +20,7 @@ function walk(dir: string, accept: (f: string) => boolean): string[] {
     return statSync(p).isDirectory() ? walk(p, accept) : accept(f) ? [p] : [];
   });
 }
+const JSON_LD_FILE = path.join("site", "json-ld.tsx");
 const sources = () => walk(srcDir, (f) => /\.(tsx?|jsx?)$/.test(f) && !/\.test\./.test(f));
 
 describe("1. the web app holds no backend secrets or database code", () => {
@@ -39,13 +40,28 @@ describe("1. the web app holds no backend secrets or database code", () => {
 
   it("every page that shows barber, sale or catalog data reads it through the API (which checks the session)", () => {
     const pages = walk(path.join(srcDir, "app"), (f) => f === "page.tsx");
-    const open = new Set(["unlock/page.tsx", "admin/login/page.tsx"]);
+    // "(site)/*" is the public website, multi-page but still static (checked below); /unlock only redirects.
+    const open = new Set(["(pos)/unlock/page.tsx", "(pos)/admin/login/page.tsx"]);
     const offenders: string[] = [];
     for (const p of pages) {
       const rel = path.relative(path.join(srcDir, "app"), p).replaceAll("\\", "/");
-      if (open.has(rel) || rel.startsWith("admin/")) continue; // admin pages are data-free shells
+      if (open.has(rel) || rel.startsWith("(pos)/admin/") || rel.startsWith("(site)/")) continue; // admin pages are data-free shells
       if (!/readApi\(|readApi</.test(readFileSync(p, "utf8"))) offenders.push(rel);
     }
+    expect(offenders).toEqual([]);
+  });
+
+  it("the public website never touches the API or any POS data (except the one public booking form)", () => {
+    const files = [...walk(path.join(srcDir, "app/(site)"), (f) => /\.tsx?$/.test(f)), ...walk(path.join(srcDir, "site"), (f) => /\.tsx?$/.test(f))];
+    // The booking form is the one deliberate exception: it calls appointments.* only (a public,
+    // rate-limited create plus a name-only barber read), never catalog/sales/auth/payouts.
+    const ALLOWED = /from "@\/app\/actions\/appointments"/g;
+    const offenders = files
+      .filter((p) => {
+        const src = readFileSync(p, "utf8").replace(ALLOWED, "");
+        return /@\/lib\/|@\/actions|@\/components|@server|readApi/.test(src);
+      })
+      .map((p) => path.relative(root, p));
     expect(offenders).toEqual([]);
   });
 });
@@ -60,9 +76,49 @@ describe("2. receipt", () => {
 describe("3. output safety", () => {
   it("no component or page uses an HTML-injection sink (dangerouslySetInnerHTML, innerHTML, document.write, eval)", () => {
     const hits = sources()
+      .filter((p) => !p.endsWith(JSON_LD_FILE)) // the one allowed place, checked in the next test
       .filter((p) => /dangerouslySetInnerHTML|\.innerHTML|\.outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function\(/.test(readFileSync(p, "utf8")))
       .map((p) => path.relative(root, p));
     expect(hits).toEqual([]);
+  });
+});
+
+describe("3b. JSON-LD", () => {
+  it("the only raw-HTML write is the structured-data script, and a name holding </script> cannot break out of it", async () => {
+    const src = readFileSync(path.join(srcDir, "site/json-ld.tsx"), "utf8");
+    expect(src.match(/dangerouslySetInnerHTML/g)).toHaveLength(1);
+
+    // Behaviour, not source text: render the real component with a hostile business name.
+    vi.resetModules();
+    vi.doMock("server-only", () => ({}));
+    vi.doMock("@/site/config", () => ({ SITE: { name: "</script><img src=x onerror=alert(1)>", address: "", phone: "", whatsapp: "", hours: "", year: 2026, reviews: [] } }));
+    const { JsonLd } = await import("@/site/json-ld");
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const html = renderToStaticMarkup(JsonLd());
+    expect(html.match(/<\/script>/g)).toHaveLength(1); // only the real closing tag
+    expect(html).not.toMatch(/<img/);
+    const body = html.replace(/^<script[^>]*>/, "").replace(/<\/script>$/, "");
+    expect(JSON.parse(body).name).toBe("</script><img src=x onerror=alert(1)>"); // still the same data once parsed
+    vi.doUnmock("@/site/config");
+    vi.doUnmock("server-only");
+  });
+
+  it("the business data holds only what config.ts has (empty items are left out, nothing is invented)", async () => {
+    vi.resetModules();
+    vi.doMock("server-only", () => ({}));
+    vi.doMock("@/site/config", () => ({ SITE: { name: "Test Salon", address: "", phone: "", whatsapp: "", hours: "", year: 2026, reviews: [] } }));
+    const empty = (await import("@/site/json-ld")).businessData();
+    expect(empty["@type"]).toBe("HairSalon");
+    expect(Object.keys(empty)).not.toContain("telephone");
+    expect(Object.keys(empty)).not.toContain("address");
+    expect(Object.keys(empty)).not.toContain("aggregateRating");
+
+    vi.resetModules();
+    vi.doMock("@/site/config", () => ({ SITE: { name: "Test Salon", address: "1 Road", phone: "017", whatsapp: "", hours: "", year: 2026, reviews: [] } }));
+    const filled = (await import("@/site/json-ld")).businessData();
+    expect(filled).toMatchObject({ telephone: "017", address: { streetAddress: "1 Road" } });
+    vi.doUnmock("@/site/config");
+    vi.doUnmock("server-only");
   });
 });
 

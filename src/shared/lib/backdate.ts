@@ -1,5 +1,5 @@
-// GENERATED COPY of the backend's src/lib/backdate.ts. Do not edit here: change it in the backend
-// repo and run `npm run sync:shared` in the dev meta-repo.
+// GENERATED COPY of Server/src/lib/backdate.ts. Do not edit here: change it there
+// and run `npm run sync:shared` at the repo root.
 // FR-22: the admin may enter a sale with a past Dhaka date and time. Allowed: from the start of the
 // Dhaka day 60 days ago up to "now". Pure (the clock is a parameter) so it is shared by the form,
 // the server action and the tests.

@@ -1,7 +1,7 @@
 // Shapes the backend API returns. Hand-written mirrors of the backend's types (the API is JSON, so
 // there is no shared TypeScript import across the two repos).
 
-import type { Barber, Category, Payout, Sale, Service, Settings } from "@server/lib/types";
+import type { Appointment, Barber, Category, Payout, Sale, Service, Settings } from "@server/lib/types";
 
 export type ActionResult<T = void> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -41,4 +41,4 @@ export type ReadResult<T> =
   | { status: "notFound" }
   | { status: "unauthorized" };
 
-export type { Sale };
+export type { Appointment, Sale };

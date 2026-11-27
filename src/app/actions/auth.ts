@@ -29,7 +29,7 @@ export async function changeShopCode(input: unknown): Promise<AuthResult> {
 
 /** Used by the barber screens to notice a stale device (e.g. after the shop code changed). */
 export async function checkShopSession(): Promise<{ valid: boolean }> {
-  return callAction("auth.checkShopSession", [], { valid: false });
+  return callAction("auth.checkShopSession", [], { valid: true }); // unreachable API: keep the screen
 }
 
 /** A barber logging in to their own screen. The device must already be shop-unlocked. */
@@ -44,5 +44,5 @@ export async function barberLogout(): Promise<AuthResult> {
 
 /** Used by the barber screen to notice its own session going stale (password changed, deactivated). */
 export async function checkBarberSession(barberId: number): Promise<{ valid: boolean }> {
-  return callAction("auth.checkBarberSession", [barberId], { valid: false });
+  return callAction("auth.checkBarberSession", [barberId], { valid: true }); // unreachable API: keep the screen
 }

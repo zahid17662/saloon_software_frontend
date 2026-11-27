@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCatalog } from "../catalog-context";
 import { Button, Card, ErrorText, Field, LoadingScreen, PageTitle, Select } from "../ui";
-import { changeAdminPin } from "@/app/actions/auth";
+import { changeAdminPin, changeShopCode } from "@/app/actions/auth";
 import { updateSettings } from "@/app/actions/catalog";
 import { NET_ERR } from "@server/lib/messages";
 import { bnDigits } from "@server/lib/money";
@@ -28,6 +28,7 @@ export function SettingsPage() {
         <ShopInfo settings={catalog.settings} />
         <div className="space-y-4">
           <PinForm />
+          <ShopCodeForm />
           <DataTools />
         </div>
       </div>
@@ -100,6 +101,7 @@ function PinForm() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   return (
     <Card>
@@ -110,13 +112,21 @@ function PinForm() {
           e.preventDefault();
           setSaved(false);
           if (next !== confirm) return setError("নতুন পিন দুইবার একই হয়নি");
-          const r = await changeAdminPin({ current, next });
-          if (!r.ok) return setError(r.error);
-          setError("");
-          setSaved(true);
-          setCurrent("");
-          setNext("");
-          setConfirm("");
+          if (busy) return;
+          setBusy(true);
+          try {
+            const r = await changeAdminPin({ current, next });
+            if (!r.ok) return setError(r.error);
+            setError("");
+            setSaved(true);
+            setCurrent("");
+            setNext("");
+            setConfirm("");
+          } catch {
+            setError(NET_ERR);
+          } finally {
+            setBusy(false);
+          }
         }}
       >
         <Field label="বর্তমান পিন" type="password" inputMode="numeric" value={current} onChange={(e) => setCurrent(e.target.value)} required />
@@ -126,7 +136,7 @@ function PinForm() {
         </div>
         <ErrorText>{error}</ErrorText>
         <Saved show={saved} />
-        <Button type="submit" variant="secondary">
+        <Button type="submit" variant="secondary" disabled={busy}>
           পিন বদলান
         </Button>
       </form>
@@ -134,20 +144,83 @@ function PinForm() {
   );
 }
 
-// A plain file download from the admin-only route (the browser keeps the current page).
-function downloadBackup() {
+function ShopCodeForm() {
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <Card>
+      <h2 className="mb-1 text-lg font-semibold text-fg">দোকানের কোড পরিবর্তন</h2>
+      <p className="mb-4 text-sm text-muted">কোড বদলালে দোকানের সব ফোন/কম্পিউটারে আবার নতুন কোড দিতে হবে।</p>
+      <form
+        className="space-y-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setSaved(false);
+          if (!window.confirm("সব ডিভাইস থেকে লগআউট হবে। কোড বদলাবেন?")) return;
+          if (busy) return;
+          setBusy(true);
+          try {
+            const r = await changeShopCode({ next: code });
+            if (!r.ok) return setError(r.error);
+            setError("");
+            setSaved(true);
+            setCode("");
+          } catch {
+            setError(NET_ERR);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <Field label="নতুন কোড (৪–৮ সংখ্যা)" type="password" inputMode="numeric" value={code} onChange={(e) => setCode(e.target.value)} required />
+        <ErrorText>{error}</ErrorText>
+        <Saved show={saved} />
+        <Button type="submit" variant="secondary" disabled={busy}>
+          কোড বদলান
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
+// Fetched first and checked, so an expired login or a server error can never be saved as a "backup".
+async function downloadBackup() {
+  const res = await fetch("/admin/backup", { cache: "no-store" });
+  if (!res.ok || !res.headers.get("content-type")?.includes("application/json")) throw new Error("backup failed");
+  const name = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ?? "salon-backup.json";
+  const url = URL.createObjectURL(await res.blob());
   const a = document.createElement("a");
-  a.href = "/admin/backup";
-  a.download = "";
+  a.href = url;
+  a.download = name;
   a.click();
+  URL.revokeObjectURL(url);
 }
 
 function DataTools() {
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function backup() {
+    setBusy(true);
+    setError("");
+    try {
+      await downloadBackup();
+    } catch {
+      setError("ব্যাকআপ নামানো যায়নি। আবার লগইন করে চেষ্টা করুন।");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <Card>
       <h2 className="mb-1 text-lg font-semibold text-fg">ডেটা</h2>
       <p className="mb-4 text-sm text-muted">সব হিসাবের একটি কপি ডাউনলোড করে রাখুন।</p>
-      <Button variant="secondary" onClick={downloadBackup}>
+      <ErrorText>{error}</ErrorText>
+      <Button variant="secondary" onClick={backup} disabled={busy}>
         ব্যাকআপ ডাউনলোড
       </Button>
     </Card>

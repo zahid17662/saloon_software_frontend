@@ -1,5 +1,5 @@
-// GENERATED COPY of the backend's src/lib/auth-core.ts. Do not edit here: change it in the backend
-// repo and run `npm run sync:shared` in the dev meta-repo.
+// GENERATED COPY of Server/src/lib/auth-core.ts. Do not edit here: change it there
+// and run `npm run sync:shared` at the repo root.
 // Pure auth primitives: HMAC-signed cookies, TTLs and zod input schemas.
 // No DB and no "server-only" so tests and proxy.ts can import it. Never import this from client code:
 // it needs node:crypto and the server's SESSION_SECRET.

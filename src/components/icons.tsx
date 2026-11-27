@@ -94,6 +94,12 @@ export const BagIcon = ({ className }: P) => (
     <path d="M6 7h12l1 13H5zM9 7V5a3 3 0 016 0v2" />
   </svg>
 );
+export const CalendarIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M3 9h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01M16 17.5h.01" />
+  </svg>
+);
 export const LogoutIcon =({ className }: P) => (
   <svg {...base} className={className}>
     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />

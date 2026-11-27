@@ -3,10 +3,10 @@
 // the money and date rules still come from ONE source: Server/src/lib.
 //
 //   npm run sync:shared          copy (run it after changing any of these files in Server/)
-//   npm run check:shared         fail if the copies are out of date (used in the meta-repo's test run)
+//   npm run check:shared         fail if the copies are out of date (part of the root `npm test`)
 //
-// It only works inside the dev meta-repo, where ../Server exists. In the standalone frontend repo
-// the copies are simply committed files and this script says so and exits.
+// It needs the sibling Server folder of this monorepo. If an installation does not include it,
+// the committed copies are kept and this script says so and exits.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -30,11 +30,11 @@ const FILES = [
 ];
 
 const BANNER =
-  "// GENERATED COPY of the backend's src/lib/%FILE%. Do not edit here: change it in the backend\n" +
-  "// repo and run `npm run sync:shared` in the dev meta-repo.\n";
+  "// GENERATED COPY of Server/src/lib/%FILE%. Do not edit here: change it there\n" +
+  "// and run `npm run sync:shared` at the repo root.\n";
 
 if (!existsSync(source)) {
-  console.log("Backend sources not found next to this app (standalone repo): keeping the committed copies.");
+  console.log("Server sources not found next to this app: keeping the committed copies.");
   process.exit(0);
 }
 

@@ -1,5 +1,5 @@
-// GENERATED COPY of the backend's src/lib/sale-rules.ts. Do not edit here: change it in the backend
-// repo and run `npm run sync:shared` in the dev meta-repo.
+// GENERATED COPY of Server/src/lib/sale-rules.ts. Do not edit here: change it there
+// and run `npm run sync:shared` at the repo root.
 // Time-window rules shared by the UI (to show or hide a button) and the server (the real check).
 // The clock is always a parameter so these stay pure and testable.
 

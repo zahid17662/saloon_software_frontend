@@ -22,7 +22,16 @@ export function Reports() {
   const r = useDateRange("month");
   const [mode, setMode] = useState<Mode>("day");
   const loaded = useSalesWindow(r.range.from, r.range.to);
-  if (!catalog || !loaded.data) return loaded.error ? <ErrorText>{loaded.error}</ErrorText> : <LoadingScreen />;
+  if (!catalog || !loaded.data) {
+    if (!loaded.error) return <LoadingScreen />;
+    // Keep the date filter on screen, so a wrong range can be corrected.
+    return (
+      <div className="space-y-4">
+        <RangeFilter state={r} />
+        <ErrorText>{loaded.error}</ErrorText>
+      </div>
+    );
+  }
   const sales = liveSales(loaded.data, r.range);
   const t = summarize(sales);
 
